@@ -81,13 +81,12 @@ def adjugate(matrix):
     return transpose(cofactors)
 
 def multiply_matrix_vector(A, B):
-    if len(A[0]) != len(B):
-        raise ValueError("Date incompatibile")
     C = []
     for row in A:
         result = sum(row[i] * B[i] for i in range(len(B)))
         C.append(result)
     return C
+
 def inverse(matrix):
     determinant = det(matrix)
     if determinant == 0:
