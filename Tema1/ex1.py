@@ -2,15 +2,13 @@ import re
 import os
 here = os.path.dirname(os.path.abspath(__file__))
 filename = os.path.join(here, 'sistem.in')
-
+#filename="./sistem.in"
 
 def get_data(file_name):
     with open(file_name, 'r') as file:
         equations = file.readlines()
-    
     matrix = []
     constants = []
-    
     for equation in equations:
         equation = equation.replace(" ", "")
         lhs, rhs = equation.split('=')
