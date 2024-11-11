@@ -2,6 +2,8 @@ import numpy as np
 from torchvision.datasets import MNIST
 from torchvision import transforms
 import matplotlib.pyplot as plt
+import time
+np.random.seed(int(time.time()))
 def download_mnist(is_train: bool):
     dataset = MNIST(root='./data',
                      transform=transforms.Lambda(lambda x: np.array(x).flatten() / 255.0),  # Normalizare (impartim la 255 , valoaera maxima a unui pixel)
@@ -15,7 +17,7 @@ train_X, train_Y = download_mnist(True)
 test_X, test_Y = download_mnist(False)
 
 def one_hot_encode(labels, num_classes):
-    return np.eye(num_classes)[labels] # pentru one_hot_encode formam matricea identitate pentru fiecare cifra
+    return np.eye(num_classes)[labels] # pentru one_hot_encode formam matricea identitate pentru fiecare cifra si returnam linia pt acea clasa
 
 num_classes = 10
 train_Y_encoded = one_hot_encode(train_Y, num_classes)
@@ -25,11 +27,12 @@ test_Y_encoded = one_hot_encode(test_Y, num_classes)
 def softmax(z):
     # Scadem maximul pentru a obtine doar valori intre 0 si 1, astfel incat pt 0 sa obitnem e^0=1, astfel ne protejam de overflow pt valori uriase
     exp_z = np.exp(z - np.max(z, axis=1, keepdims=True))  
-   #returnam norma vectorului impartind fiecare element la suma tuturor elementelor pentru a obtine distributia probabilitatilor
+    #returnam norma vectorului impartind fiecare element la suma tuturor elementelor pentru a obtine distributia probabilitatilor
     return exp_z / np.sum(exp_z, axis=1, keepdims=True) 
 
 def forward_propagation(X, W, b):
-    #pt forward prop. vom face dot product intre input si weights si adaugam biasul fiecarui perceptron
+
+    #pt forward prop. vom face dot product intre input (in cazul nostru un Battch de date) si weights si adaugam biasul fiecarui perceptron
     z = np.dot(X, W) + b
     #pe urma returnam outputl functiei softmax pentru acest set de date pentru a obtine distributia probabilitatilor
     return softmax(z)
@@ -55,7 +58,7 @@ def train(X, Y, epochs=100, batch_size=50, learning_rate=0.01):
             loss = compute_loss(y_pred, Y_batch)
 
             # Backward propagation
-            error = y_pred - Y_batch  # Gradientul functiei loss
+            error = y_pred - Y_batch  
             W_grad = np.dot(X_batch.T, error) / batch_size 
             b_grad = np.sum(error, axis=0) / batch_size  
 
@@ -77,7 +80,7 @@ def compute_accuracy(y_pred, y_true):
     return np.mean(y_pred == y_true)
 
 
-W, b = train(train_X, train_Y_encoded, epochs=500, learning_rate=0.1, batch_size=100)
+W, b = train(train_X, train_Y_encoded, epochs=100, learning_rate=0.1, batch_size=100)
 
 train_predictions = predict(train_X, W, b)
 test_predictions = predict(test_X, W, b)
